@@ -21,9 +21,31 @@ namespace Service
             host.AddServiceEndpoint(typeof(IService), binding, address);
             host.Open();
             Console.WriteLine("Lucky6 Service is Running...");
+
+
+            string temp = "";
+            int selectedRound = 0;
+            while (true)
+            {
+                Console.WriteLine("For exiting application enter 'exit'");
+                Console.WriteLine("Select a round: ");
+
+                temp = Console.ReadLine();
+                if (temp == "exit")
+                    break;
+
+                int.TryParse(temp, out selectedRound);
+
+                Console.WriteLine(Singleton.Instance.proxy.RequestWinnersForOneRound(selectedRound));
+            }
+
+
             Console.ReadLine();
+
 
             host.Close();
         }
+
     }
+
 }
