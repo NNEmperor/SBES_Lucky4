@@ -19,7 +19,7 @@ namespace RemoteServer
             FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(stream);
             sw.Write(t.ToString());
-
+            sw.Write(Environment.NewLine);
             sw.Close();
             stream.Close();
         }
@@ -38,7 +38,7 @@ namespace RemoteServer
                 time.ToString();
            
             sw.Write(text);
-
+            sw.Write(Environment.NewLine);
             sw.Close();
             stream.Close();
         }

@@ -36,10 +36,36 @@ namespace Client
                 }
                 Ticket newTicket = new Ticket(numbers, temp);
                 Results results = proxy.RegisterForOneRound(newTicket);
-                Console.WriteLine(results.Won.ToString());
-                foreach(int x in results.Numbers)
+                if(results.Won = true && results.Credits == -1)
                 {
-                    Console.WriteLine(x);
+                    Console.WriteLine("Sign up time for this round has ended. New one is starting shortly!");
+                }
+                else
+                {
+                    Console.WriteLine("Drawn Numbers: ");
+                    for(int i=0; i < 5; i++)
+                    {
+                        for (int j = 0; j < 7; j++)
+                        {
+                            if (results.Numbers[i * 7 + j] < 10)
+                            {
+                                Console.Write(" " + results.Numbers[i * 7 + j] + " ");
+                            }
+                            else
+                            {
+                                Console.Write(results.Numbers[i * 7 + j] + " ");
+                            }
+                        }
+                        Console.WriteLine("");
+                    }
+                    if (results.Won == true)
+                    {
+                        Console.WriteLine("CONGRATULATIONS! You won " + results.Credits*3 + " credits!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("You lost " + results.Credits + " credits, better luck next time!");
+                    }
                 }
             }
         }

@@ -18,13 +18,45 @@ namespace Service
             WindowsIdentity windowsIdentity = identity as WindowsIdentity;
             t.Username = windowsIdentity.Name;
 
-            Singleton.Instance.proxy.ForwardBet(t);
-
+            if (!Singleton.Instance.CanBet)
+            {
+                return new Results(true, new List<int>(), -1);
+            }
+            
             lock (Singleton.Instance.Signal)
             {
+                Singleton.Instance.ActivePlayers++;
                 Monitor.Wait(Singleton.Instance.Signal);
-                return new Results(true, Singleton.Instance.DrawnNumbers, 5);//samo za testiranje, logika oko dobitka i to nedostaje
+                Singleton.Instance.ActivePlayers--;                
+                bool won = true;
+                foreach (int x in t.Numbers)
+                {
+                    if (Singleton.Instance.DrawnNumbers.IndexOf(x) == -1)
+                    {
+                        won = false;
+                        break;
+                    }
+                }
+                if (won == true)
+                {
+                    Singleton.Instance.WinnerCount++;
+                }
+                if (Singleton.Instance.ActivePlayers == 0)
+                {
+                    RoundCleanUp();
+                    //Console.WriteLine("RoundCleanUp");
+                }                
+                Singleton.Instance.proxy.ForwardBet(t);
+                return new Results(won, Singleton.Instance.DrawnNumbers, t.Bet);
+            }                        
+        }
+        private void RoundCleanUp()
+        {
+            if (Singleton.Instance.WinnerCount >= 3)
+            {
+                Singleton.Instance.proxy.MultipleWinners(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);//Neka neko proveri ovo oko identiteta, pojma nemam da li se ovako poziva lol
             }
+            Singleton.Instance.WinnerCount = 0;
         }
     }
 }

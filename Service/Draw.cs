@@ -18,21 +18,22 @@ namespace Service
         {
             while (true)
             {
+                Thread.Sleep(10000);
+                Singleton.Instance.CanBet = false;
                 Thread.Sleep(5000);
-                List<int> possible = Enumerable.Range(1, 48).ToList();
-                List<int> listNumbers = new List<int>();
-                for (int i = 0; i < 35; i++)
+                List<int> Drawn = Enumerable.Range(1, 48).ToList();
+                for (int i = 0; i < 13; i++)
                 {
-                    int index = rand.Next(0, possible.Count);
-                    listNumbers.Add(possible[index]);
-                    possible.RemoveAt(index);
+                    int index = rand.Next(0, Drawn.Count);
+                    //Drawn.RemoveAt(index); //za testiranje, da uvek klijent dobije, jer su svi brojevi izvuceni
                 }
+                Singleton.Instance.DrawnNumbers = Drawn;
+                Singleton.Instance.CanBet = true;
+                Console.WriteLine("Round " + Singleton.Instance.RoundNumber++ + " Finished");
                 lock (Singleton.Instance.Signal)
                 {
-                    Singleton.Instance.DrawnNumbers = listNumbers;
                     Monitor.PulseAll(Singleton.Instance.Signal);
                 }
-                Console.WriteLine("Round Finished");
             }
         }
     }
