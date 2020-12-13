@@ -36,7 +36,7 @@ namespace Client
                 }
                 Ticket newTicket = new Ticket(numbers, temp);
                 Results results = proxy.RegisterForOneRound(newTicket);
-                if(results.Won = true && results.Credits == -1)
+                if(results.Won == true && results.Credits == -1)
                 {
                     Console.WriteLine("Sign up time for this round has ended. New one is starting shortly!");
                 }

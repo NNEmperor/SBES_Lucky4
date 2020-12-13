@@ -25,7 +25,7 @@ namespace Service
                 for (int i = 0; i < 13; i++)
                 {
                     int index = rand.Next(0, Drawn.Count);
-                    //Drawn.RemoveAt(index); //za testiranje, da uvek klijent dobije, jer su svi brojevi izvuceni
+                    Drawn.RemoveAt(index); //za testiranje, da uvek klijent dobije, jer su svi brojevi izvuceni
                 }
                 Singleton.Instance.DrawnNumbers = Drawn;
                 Singleton.Instance.CanBet = true;
