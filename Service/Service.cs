@@ -1,4 +1,5 @@
 ﻿using Common;
+using Manager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +43,7 @@ namespace Service
 
             if (!Singleton.Instance.CanBet)
             {
-                Results results = new Results(true, new List<int>(), -1);
-                return Formatter.ResultsToString(results);
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(true, new List<int>(), -1)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
             }
             
             lock (Singleton.Instance.Signal)

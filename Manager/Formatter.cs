@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common
+namespace Manager
 {
     public class Formatter
     {
@@ -49,9 +50,9 @@ namespace Common
 
             foreach (int num in results.Numbers)
             {
-                retVal += num.ToString() + "m";
+                retVal += num.ToString() + ",";
             }
-            if(results.Numbers.Count > 0)
+            if (results.Numbers.Count > 0)
                 retVal = retVal.Substring(0, retVal.Length - 1);
 
             retVal += "|" + results.Credits.ToString();
@@ -63,7 +64,7 @@ namespace Common
         {
             Results retVal = new Results();
             string[] parts = results.Split('|');
-            string[] nums = parts[1].Split('m');
+            string[] nums = parts[1].Split(',');
 
             retVal.Won = bool.Parse(parts[0]);
             retVal.Numbers = new List<int>();
@@ -71,7 +72,8 @@ namespace Common
 
             foreach (string num in nums)
             {
-                retVal.Numbers.Add(int.Parse(num));
+                if (!num.Equals(String.Empty))
+                    retVal.Numbers.Add(int.Parse(num));
             }
 
             return retVal;
