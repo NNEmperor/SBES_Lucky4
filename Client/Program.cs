@@ -16,6 +16,13 @@ namespace Client
             string address = "net.tcp://localhost:9999/Lucky6";
             ChannelFactory<IService> factory = new ChannelFactory<IService>(binding, new EndpointAddress(address));
             IService proxy = factory.CreateChannel();
+            byte[] secretKey;
+            byte[] IV;
+
+            List<byte[]> list = proxy.Connect();
+            secretKey = list[0];
+            IV = list[1];
+
             while (true)
             {
                 List<int> numbers = new List<int>();
@@ -34,8 +41,13 @@ namespace Client
                 {
                     Console.WriteLine("Please insert a valid integer");
                 }
+
                 Ticket newTicket = new Ticket(numbers, temp);
-                Results results = proxy.RegisterForOneRound(newTicket);
+                string encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.TicketToString(newTicket), secretKey, IV);
+                string encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
+                string decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
+                Results results = Formatter.GetResults(decryptedResults);
+
                 if(results.Won == true && results.Credits == -1)
                 {
                     Console.WriteLine("Sign up time for this round has ended. New one is starting shortly!");

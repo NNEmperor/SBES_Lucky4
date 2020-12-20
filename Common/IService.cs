@@ -11,6 +11,9 @@ namespace Common
     public interface IService
     {
         [OperationContract]
-        Results RegisterForOneRound(Ticket t);
+        string RegisterForOneRound(string t);
+
+        [OperationContract]
+        List<byte[]> Connect();
     }
 }

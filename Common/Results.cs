@@ -16,6 +16,7 @@ namespace Common
             Numbers = numbers;
             Credits = credits;
         }
+        public Results() { }
         [DataMember]
         public bool Won { get; set; }
         [DataMember]

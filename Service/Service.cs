@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
@@ -12,15 +13,37 @@ namespace Service
 {
     class Service : IService
     {
-        public Results RegisterForOneRound(Ticket t)
+        public List<byte[]> Connect()
         {
+            List<byte[]> list = new List<byte[]>();
+
+            using (AesCryptoServiceProvider myAes = new AesCryptoServiceProvider())
+            {
+                list.Add(myAes.Key);
+                list.Add(myAes.IV);
+
+                Singleton.Instance.SecretKey = myAes.Key;
+                Singleton.Instance.IV = myAes.IV;
+            }
+
+
+            return list;
+        }
+
+        public string RegisterForOneRound(string ticket)
+        {
+            string decryptedTicket = AES_Algorithm.DecryptMessage_Aes(ticket, Singleton.Instance.SecretKey, Singleton.Instance.IV);
+
+            Ticket t = Formatter.GetTicket(decryptedTicket);
+
             IIdentity identity = Thread.CurrentPrincipal.Identity;
             WindowsIdentity windowsIdentity = identity as WindowsIdentity;
             t.Username = windowsIdentity.Name;
 
             if (!Singleton.Instance.CanBet)
             {
-                return new Results(true, new List<int>(), -1);
+                Results results = new Results(true, new List<int>(), -1);
+                return Formatter.ResultsToString(results);
             }
             
             lock (Singleton.Instance.Signal)
@@ -47,7 +70,8 @@ namespace Service
                     //Console.WriteLine("RoundCleanUp");
                 }                
                 Singleton.Instance.proxy.ForwardBet(t);
-                return new Results(won, Singleton.Instance.DrawnNumbers, t.Bet);
+                
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
             }                        
         }
         private void RoundCleanUp()

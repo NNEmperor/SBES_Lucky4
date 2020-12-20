@@ -21,7 +21,10 @@ namespace Common
         {
             Numbers = numbers;
             Bet = bet;
+            Username = "client";
         }
+
+        public Ticket() { }
 
         public override string ToString()
         {

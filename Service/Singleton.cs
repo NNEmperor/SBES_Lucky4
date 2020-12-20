@@ -21,6 +21,10 @@ namespace Service
         public int ActivePlayers;
         public bool CanBet;
 
+        public byte[] SecretKey { get; set; }
+        public byte[] IV { get; set; }
+
+
         Singleton()
         {
             DrawnNumbers = new List<int>();
