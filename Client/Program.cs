@@ -44,10 +44,10 @@ namespace Client
                 }
 
                 Ticket newTicket = new Ticket(numbers, temp);
-                string encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.TicketToString(newTicket), secretKey, IV);
-                string encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
-                string decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
-                Results results = Formatter.GetResults(decryptedResults);
+                byte[] encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.ObjectToByteArray(newTicket), secretKey, IV);
+                byte[] encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
+                byte[] decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
+                Results results = Formatter.ByteArrayToObject(decryptedResults) as Results;
 
                 if(results.Won == true && results.Credits == -1)
                 {

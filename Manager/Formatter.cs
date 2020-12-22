@@ -1,7 +1,9 @@
 ﻿using Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,74 +40,29 @@ namespace Manager
                 return logName;
             }
         }
-        public static string TicketToString(Ticket ticket)
+
+        public static byte[] ObjectToByteArray(Object obj)
         {
-            string retVal = "";
-
-            foreach (int number in ticket.Numbers)
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
             {
-                retVal += number.ToString() + ',';
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
             }
-            retVal = retVal.Substring(0, retVal.Length - 1);
-            retVal += "|" + ticket.Username;
-            retVal += "|" + ticket.Bet.ToString();
-
-            return retVal;
         }
 
-        public static Ticket GetTicket(string ticket)
+        public static Object ByteArrayToObject(byte[] arrBytes)
         {
-            Ticket retVal = new Ticket();
-            string[] parts = ticket.Split('|');
-            string[] nums = parts[0].Split(',');
-
-            retVal.Username = parts[1];
-            retVal.Bet = int.Parse(parts[2]);
-            retVal.Numbers = new List<int>();
-
-            foreach (string num in nums)
+            using (var memStream = new MemoryStream())
             {
-                retVal.Numbers.Add(int.Parse(num));
+                var binForm = new BinaryFormatter();
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                var obj = binForm.Deserialize(memStream);
+                memStream.Flush();
+                return obj;
             }
-
-            return retVal;
         }
 
-        public static string ResultsToString(Results results)
-        {
-            string retVal = "";
-
-            retVal += results.Won.ToString() + "|";
-
-            foreach (int num in results.Numbers)
-            {
-                retVal += num.ToString() + ",";
-            }
-            if (results.Numbers.Count > 0)
-                retVal = retVal.Substring(0, retVal.Length - 1);
-
-            retVal += "|" + results.Credits.ToString();
-
-            return retVal;
-        }
-
-        public static Results GetResults(string results)
-        {
-            Results retVal = new Results();
-            string[] parts = results.Split('|');
-            string[] nums = parts[1].Split(',');
-
-            retVal.Won = bool.Parse(parts[0]);
-            retVal.Numbers = new List<int>();
-            retVal.Credits = int.Parse(parts[2]);
-
-            foreach (string num in nums)
-            {
-                if (!num.Equals(String.Empty))
-                    retVal.Numbers.Add(int.Parse(num));
-            }
-
-            return retVal;
-        }
     }
 }

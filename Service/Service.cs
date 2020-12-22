@@ -31,11 +31,9 @@ namespace Service
             return list;
         }
 
-        public string RegisterForOneRound(string ticket)
+        public byte[] RegisterForOneRound(byte[] ticket)
         {
-            string decryptedTicket = AES_Algorithm.DecryptMessage_Aes(ticket, Singleton.Instance.SecretKey, Singleton.Instance.IV);
-
-            Ticket t = Formatter.GetTicket(decryptedTicket);
+            Ticket t = Formatter.ByteArrayToObject(ticket) as Ticket;
 
             IIdentity identity = Thread.CurrentPrincipal.Identity;
             WindowsIdentity windowsIdentity = identity as WindowsIdentity;
@@ -43,7 +41,7 @@ namespace Service
 
             if (!Singleton.Instance.CanBet)
             {
-                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(true, new List<int>(), -1)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ObjectToByteArray(new Results(true, new List<int>(), -1)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
             }
             
             lock (Singleton.Instance.Signal)
@@ -71,7 +69,7 @@ namespace Service
                 }                
                 Singleton.Instance.proxy.ForwardBet(t);
                 
-                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ObjectToByteArray(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
             }                        
         }
         private void RoundCleanUp()

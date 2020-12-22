@@ -10,7 +10,8 @@ namespace Manager
 {
     public class AES_Algorithm
     {
-        public static string EncryptMessage_Aes(string plainText, byte[] Key, byte[] IV)
+
+        public static byte[] EncryptMessage_Aes(byte[] plainText, byte[] Key, byte[] IV)
         {
             // Check arguments.
             if (plainText == null || plainText.Length <= 0)
@@ -21,8 +22,8 @@ namespace Manager
                 throw new ArgumentNullException("IV");
             byte[] encrypted;
 
-            // Create an AesCryptoServiceProvider object
-            // with the specified key and IV.
+            //    // Create an AesCryptoServiceProvider object
+            //    // with the specified key and IV.
             using (AesCryptoServiceProvider aesAlg = new AesCryptoServiceProvider())
             {
                 aesAlg.Key = Key;
@@ -36,24 +37,18 @@ namespace Manager
                 {
                     using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            //Write all data to the stream.
-                            swEncrypt.Write(plainText);
-                        }
-                        encrypted = msEncrypt.ToArray();
+                        csEncrypt.Write(plainText, 0, plainText.Length);
                     }
+                    encrypted = msEncrypt.ToArray();
                 }
             }
 
-            // Return the encrypted string from the memory stream.
-            return Convert.ToBase64String(encrypted);
+            // Return the encrypted bytes from the memory stream.
+            return encrypted;
         }
 
-        public static string DecryptMessage_Aes(string cipherMessage, byte[] Key, byte[] IV)
+        public static byte[] DecryptMessage_Aes(byte[] cipherText, byte[] Key, byte[] IV)
         {
-            byte[] cipherText = Convert.FromBase64String(cipherMessage);
-
             // Check arguments.
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException("cipherText");
@@ -64,7 +59,8 @@ namespace Manager
 
             // Declare the string used to hold
             // the decrypted text.
-            string plaintext = null;
+            byte[] plaintext = null;
+
 
             // Create an AesCryptoServiceProvider object
             // with the specified key and IV.
@@ -75,21 +71,8 @@ namespace Manager
 
                 // Create a decryptor to perform the stream transform.
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                plaintext = decryptor.TransformFinalBlock(cipherText, 0, cipherText.Length);
 
-                // Create the streams used for decryption.
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                        {
-
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
-                            plaintext = srDecrypt.ReadToEnd();
-                        }
-                    }
-                }
             }
 
             return plaintext;
