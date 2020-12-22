@@ -11,13 +11,14 @@ namespace Common
     public interface IServer
     {
         [OperationContract]
-        void ForwardBet(Ticket t);
+        void ForwardBet(string bet);//(Ticket t);
 
         [OperationContract]
         string RequestWinnersForOneRound(string round);
 
         [OperationContract]
-        void MultipleWinners(int round, int count, string identitet, DateTime time);
+        void MultipleWinners(string winner);
+        //void MultipleWinners(int round, int count, string identitet, DateTime time);
 
     }
 }

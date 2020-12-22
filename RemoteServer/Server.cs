@@ -15,31 +15,37 @@ namespace RemoteServer
     class Server : IServer
     {
 
-        public void ForwardBet(Ticket t)
+        public void ForwardBet(string encryptedBet)
         {
+            string srvCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+            X509Certificate2 cert = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
+
+            string decryptedBet = RSA_Algorithm.DecryptRsa(encryptedBet, cert);
+
             string file = "Bets.txt";
             FileInfo f = new FileInfo(file);
             string path = f.FullName;
             FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(stream);
-            sw.Write(t.ToString());
+            sw.Write(decryptedBet);
             sw.Write(Environment.NewLine);
             sw.Close();
             stream.Close();
         }
 
-        public void MultipleWinners(int round, int count, string identity, DateTime time)
+        public void MultipleWinners(string encryptedWinner)//(int round, int count, string identity, DateTime time)
         {
+            string srvCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+            X509Certificate2 cert = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
+
+            string decryptedWinner = RSA_Algorithm.DecryptRsa(encryptedWinner, cert);
             string file = "MultipleWinners.txt";
             FileInfo f = new FileInfo(file);
             string path = f.FullName;
             FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(stream);
 
-            string text = round.ToString() + ";" +
-                count.ToString() + ";" +
-                identity + ';' +
-                time.ToString();
+            string text = decryptedWinner;
            
             sw.Write(text);
             sw.Write(Environment.NewLine);

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
@@ -68,8 +69,15 @@ namespace Service
                 {
                     RoundCleanUp();
                     //Console.WriteLine("RoundCleanUp");
-                }                
-                Singleton.Instance.proxy.ForwardBet(t);
+                }
+                string bet = Formatter.TicketToString(t);
+                string encyptedBet = string.Empty;
+                //serverski sertifikat,vadimo iz trusted people
+                string srvcertCN = "adminPera";
+                X509Certificate2 serverCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvcertCN);
+                encyptedBet = RSA_Algorithm.EncryptRsa(bet, serverCert);
+                Singleton.Instance.proxy.ForwardBet(encyptedBet);
+                //Singleton.Instance.proxy.ForwardBet(t);
 
                 return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
             }
@@ -78,7 +86,14 @@ namespace Service
         {
             if (Singleton.Instance.WinnerCount >= 3)
             {
-                Singleton.Instance.proxy.MultipleWinners(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);//Neka neko proveri ovo oko identiteta, pojma nemam da li se ovako poziva lol
+                Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);
+                string encyptedWinner = string.Empty;
+                //serverski sertifikat,vadimo iz trusted people
+                string srvcertCN = "adminPera";
+                X509Certificate2 serverCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvcertCN);
+                encyptedWinner = RSA_Algorithm.EncryptRsa(winner.ToString(), serverCert);
+                Singleton.Instance.proxy.MultipleWinners(encyptedWinner);
+                //Singleton.Instance.proxy.MultipleWinners(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);//Neka neko proveri ovo oko identiteta, pojma nemam da li se ovako poziva lol
             }
             Singleton.Instance.WinnerCount = 0;
         }
