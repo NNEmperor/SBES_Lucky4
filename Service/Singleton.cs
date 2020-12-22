@@ -1,7 +1,10 @@
 ﻿using Common;
+using Manager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
@@ -34,9 +37,25 @@ namespace Service
             ActivePlayers = 0;
             CanBet = true;
 
+            string srvCertCN = "adminPera";
+
             NetTcpBinding binding = new NetTcpBinding();
-            string address = "net.tcp://localhost:9998/Server";
-            ChannelFactory<IServer> factory = new ChannelFactory<IServer>(binding, new EndpointAddress(address));
+            binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
+
+            X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople,
+                StoreLocation.LocalMachine, srvCertCN);
+            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:9998/Server"),
+                                      new X509CertificateEndpointIdentity(srvCert));
+
+            //string address = "net.tcp://localhost:9998/Server";
+            ChannelFactory<IServer> factory = new ChannelFactory<IServer>(binding,address);
+
+            string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+            factory.Credentials.ClientCertificate.Certificate =
+                CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
+            factory.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.ChainTrust;
+            factory.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
+
             proxy = factory.CreateChannel();
 
         }

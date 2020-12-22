@@ -14,7 +14,7 @@ namespace Common
         void ForwardBet(Ticket t);
 
         [OperationContract]
-        int RequestWinnersForOneRound(int round);
+        string RequestWinnersForOneRound(string round);
 
         [OperationContract]
         void MultipleWinners(int round, int count, string identitet, DateTime time);

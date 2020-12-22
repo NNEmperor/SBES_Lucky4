@@ -1,7 +1,10 @@
 ﻿using Common;
+using Manager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,8 +38,21 @@ namespace Service
                     break;
 
                 int.TryParse(temp, out selectedRound);
+                string encyptedRound = string.Empty;
+                //serverski sertifikat,vadimo iz trusted people
+                string srvcertCN = "adminPera";
+                X509Certificate2 serverCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, StoreLocation.LocalMachine, srvcertCN);
+                encyptedRound = RSA_Algorithm.EncryptRsa(selectedRound.ToString(), serverCert);
+                //Console.WriteLine("SIFROVANO: " + encyptedRound + Environment.NewLine);
+                
+                string clientCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+                //Console.WriteLine("KLIJENT:" + clientCertCN + Environment.NewLine);
+                X509Certificate2 clientCert = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, clientCertCN);
+                string response = Singleton.Instance.proxy.RequestWinnersForOneRound(encyptedRound);
+                //Console.WriteLine("Odgovor: " + response + Environment.NewLine);
+                Console.WriteLine("Multiple winners: " + RSA_Algorithm.DecryptRsa(response, clientCert));//sifrovana runda se salje
 
-                Console.WriteLine(Singleton.Instance.proxy.RequestWinnersForOneRound(selectedRound));
+                //Console.WriteLine(Singleton.Instance.proxy.RequestWinnersForOneRound(selectedRound));
             }
 
 
