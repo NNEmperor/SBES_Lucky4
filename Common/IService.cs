@@ -11,7 +11,7 @@ namespace Common
     public interface IService
     {
         [OperationContract]
-        byte[] RegisterForOneRound(byte[] t);
+        string RegisterForOneRound(string t);
 
         [OperationContract]
         List<byte[]> Connect();

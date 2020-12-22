@@ -44,12 +44,16 @@ namespace Client
                 }
 
                 Ticket newTicket = new Ticket(numbers, temp);
-                byte[] encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.ObjectToByteArray(newTicket), secretKey, IV);
-                byte[] encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
-                byte[] decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
-                Results results = Formatter.ByteArrayToObject(decryptedResults) as Results;
+                //byte[] encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.TicketToString(newTicket), secretKey, IV);
+                //byte[] encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
+                //string decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
+                //Results results = Formatter.GetResults(decryptedResults) as Results;
+                string encryptedTicket = AES_Algorithm.EncryptMessage_Aes(Formatter.TicketToString(newTicket), secretKey, IV);
+                string encryptedResults = proxy.RegisterForOneRound(encryptedTicket);
+                string decryptedResults = AES_Algorithm.DecryptMessage_Aes(encryptedResults, secretKey, IV);
+                Results results = Formatter.GetResults(decryptedResults);
 
-                if(results.Won == true && results.Credits == -1)
+                if (results.Won == true && results.Credits == -1)
                 {
                     Console.WriteLine("Sign up time for this round has ended. New one is starting shortly!");
                 }
