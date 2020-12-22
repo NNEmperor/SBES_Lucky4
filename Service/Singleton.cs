@@ -24,9 +24,10 @@ namespace Service
         public int ActivePlayers;
         public bool CanBet;
 
-        public byte[] SecretKey { get; set; }
-        public byte[] IV { get; set; }
+        //public byte[] SecretKey { get; set; }
+        //public byte[] IV { get; set; }
 
+        public Dictionary<string, List<byte[]>> SecretKeys { get; set; }
 
         Singleton()
         {
@@ -36,6 +37,7 @@ namespace Service
             WinnerCount = 0;
             ActivePlayers = 0;
             CanBet = true;
+            SecretKeys = new Dictionary<string, List<byte[]>>();
 
             string srvCertCN = "adminPera";
 

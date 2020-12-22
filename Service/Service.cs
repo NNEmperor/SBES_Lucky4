@@ -24,8 +24,16 @@ namespace Service
                 list.Add(myAes.Key);
                 list.Add(myAes.IV);
 
-                Singleton.Instance.SecretKey = myAes.Key;
-                Singleton.Instance.IV = myAes.IV;
+                //Singleton.Instance.SecretKey = myAes.Key;
+                //Singleton.Instance.IV = myAes.IV;
+
+                IIdentity identity = Thread.CurrentPrincipal.Identity;
+                WindowsIdentity windowsIdentity = identity as WindowsIdentity;
+
+                if (!Singleton.Instance.SecretKeys.ContainsKey(windowsIdentity.Name))
+                    Singleton.Instance.SecretKeys.Add(windowsIdentity.Name, list);
+                else
+                    return Singleton.Instance.SecretKeys[windowsIdentity.Name];
             }
 
 
@@ -34,17 +42,19 @@ namespace Service
 
         public string RegisterForOneRound(string ticket)
         {
-            string decryptedTicket = AES_Algorithm.DecryptMessage_Aes(ticket, Singleton.Instance.SecretKey, Singleton.Instance.IV);
-
-            Ticket t = Formatter.GetTicket(decryptedTicket);
-
             IIdentity identity = Thread.CurrentPrincipal.Identity;
             WindowsIdentity windowsIdentity = identity as WindowsIdentity;
+
+            byte[] secretKey = Singleton.Instance.SecretKeys[windowsIdentity.Name][0];
+            byte[] IV = Singleton.Instance.SecretKeys[windowsIdentity.Name][1];
+
+            string decryptedTicket = AES_Algorithm.DecryptMessage_Aes(ticket, secretKey, IV);
+            Ticket t = Formatter.GetTicket(decryptedTicket);
             t.Username = windowsIdentity.Name;
 
             if (!Singleton.Instance.CanBet)
             {
-                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(true, new List<int>(), -1)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(true, new List<int>(), -1)), secretKey, IV);
             }
             
             lock (Singleton.Instance.Signal)
@@ -79,7 +89,7 @@ namespace Service
                 Singleton.Instance.proxy.ForwardBet(encyptedBet);
                 //Singleton.Instance.proxy.ForwardBet(t);
 
-                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), Singleton.Instance.SecretKey, Singleton.Instance.IV);
+                return AES_Algorithm.EncryptMessage_Aes(Formatter.ResultsToString(new Results(won, Singleton.Instance.DrawnNumbers, t.Bet)), secretKey, IV);
             }
         }
         private void RoundCleanUp()
