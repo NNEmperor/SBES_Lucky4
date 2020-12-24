@@ -3,6 +3,8 @@ using Manager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +22,15 @@ namespace Client
             byte[] secretKey;
             byte[] IV;
 
-            List<byte[]> list = proxy.Connect();
-            secretKey = list[0];
-            IV = list[1];
+
+            string clientCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+            X509Certificate2 cert = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, clientCertCN);
+
+            List<string> list = proxy.Connect();
+            string decryptedKey = RSA_Algorithm.DecryptRsa(list[0], cert);
+            string decryptedIV = RSA_Algorithm.DecryptRsa(list[1], cert);
+            secretKey = Convert.FromBase64String(decryptedKey);
+            IV =Convert.FromBase64String(decryptedIV);
 
             while (true)
             {

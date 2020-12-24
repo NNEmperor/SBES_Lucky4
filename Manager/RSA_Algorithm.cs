@@ -14,12 +14,11 @@ namespace Manager
         {
             string output = string.Empty;
             //X509Certificate2 cert = getCertificate(certificateName);
-            using (RSACryptoServiceProvider csp = (RSACryptoServiceProvider)cert.PublicKey.Key)
-            {
+            RSACryptoServiceProvider csp = (RSACryptoServiceProvider)cert.PublicKey.Key;
                 byte[] bytesData = Encoding.UTF8.GetBytes(input);
                 byte[] bytesEncrypted = csp.Encrypt(bytesData, false);
                 output = Convert.ToBase64String(bytesEncrypted);
-            }
+
             return output;
         }
 
@@ -27,12 +26,12 @@ namespace Manager
         {
             string text = string.Empty;
             //X509Certificate2 cert = getCertificate(certificateName);
-            using (RSACryptoServiceProvider csp = (RSACryptoServiceProvider)cert.PrivateKey)
-            {
+            RSACryptoServiceProvider csp = (RSACryptoServiceProvider)cert.PrivateKey;
+            
                 byte[] bytesEncrypted = Convert.FromBase64String(encrypted);
                 byte[] bytesDecrypted = csp.Decrypt(bytesEncrypted, false);
                 text = Encoding.UTF8.GetString(bytesDecrypted);
-            }
+            
             return text;
         }
     }

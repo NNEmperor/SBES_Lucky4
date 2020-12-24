@@ -15,29 +15,53 @@ namespace Service
 {
     class Service : IService
     {
-        public List<byte[]> Connect()
+        public List<string> Connect()
         {
+            List<string> retVal = new List<string>();
             List<byte[]> list = new List<byte[]>();
 
             using (AesCryptoServiceProvider myAes = new AesCryptoServiceProvider())
             {
+
+                IIdentity identity = Thread.CurrentPrincipal.Identity;
+                WindowsIdentity windowsIdentity = identity as WindowsIdentity;
+
+                X509Certificate2 clientCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople, 
+                    StoreLocation.LocalMachine, Formatter.ParseName(identity.Name));
+
+
+                string key;
+                string IV;
+
                 list.Add(myAes.Key);
                 list.Add(myAes.IV);
 
                 //Singleton.Instance.SecretKey = myAes.Key;
                 //Singleton.Instance.IV = myAes.IV;
 
-                IIdentity identity = Thread.CurrentPrincipal.Identity;
-                WindowsIdentity windowsIdentity = identity as WindowsIdentity;
-
                 if (!Singleton.Instance.SecretKeys.ContainsKey(windowsIdentity.Name))
+                {
                     Singleton.Instance.SecretKeys.Add(windowsIdentity.Name, list);
+                    key = Convert.ToBase64String(myAes.Key);
+                    IV = Convert.ToBase64String(myAes.IV);
+
+                }
                 else
-                    return Singleton.Instance.SecretKeys[windowsIdentity.Name];
+                {
+                    key = Convert.ToBase64String(Singleton.Instance.SecretKeys[windowsIdentity.Name][0]);
+                    IV = Convert.ToBase64String(Singleton.Instance.SecretKeys[windowsIdentity.Name][1]);
+                }
+
+                string encryptedKey = RSA_Algorithm.EncryptRsa(key, clientCert);
+                string encryptedIV = RSA_Algorithm.EncryptRsa(IV, clientCert);
+
+                retVal.Add(encryptedKey);
+                retVal.Add(encryptedIV);
+                //retVal.Add(key);
+                //retVal.Add(IV);
+                return retVal;
             }
 
-
-            return list;
         }
 
         public string RegisterForOneRound(string ticket)
@@ -94,9 +118,12 @@ namespace Service
         }
         private void RoundCleanUp()
         {
-            if (Singleton.Instance.WinnerCount >= 3)
+            if (Singleton.Instance.WinnerCount >= 1)
             {
-                Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);
+                //ispise ime klijenta
+              //  Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);
+ 
+                Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount,ServiceSecurityContext.Current.PrimaryIdentity.Name, DateTime.Now);
                 string encyptedWinner = string.Empty;
                 //serverski sertifikat,vadimo iz trusted people
                 string srvcertCN = "adminPera";

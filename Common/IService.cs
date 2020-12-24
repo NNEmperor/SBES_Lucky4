@@ -14,6 +14,6 @@ namespace Common
         string RegisterForOneRound(string t);
 
         [OperationContract]
-        List<byte[]> Connect();
+        List<string> Connect();
     }
 }
