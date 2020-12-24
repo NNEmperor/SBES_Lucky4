@@ -79,17 +79,22 @@ namespace RemoteServer
             X509Certificate2 cert = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
 
             string decryptedWinner = RSA_Algorithm.DecryptRsa(encryptedWinner, cert);
+
+            string clientName = Formatter.ParseName(ServiceSecurityContext.Current.PrimaryIdentity.Name);
+            Winner winner = Formatter.GetWinner(decryptedWinner);
+            winner.Identity = clientName;
+           
             string file = "MultipleWinners.txt";
             FileInfo f = new FileInfo(file);
             string path = f.FullName;
             FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(stream);
 
-            string text = decryptedWinner;
+            string text = winner.ToString();
            
             sw.Write(text);
             sw.Write(Environment.NewLine);
-            DataBase.winners.Add(Formatter.GetWinner(text));
+            DataBase.winners.Add(winner);
             sw.Close();
             stream.Close();
         }

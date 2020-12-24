@@ -19,11 +19,11 @@ namespace Common
             LastChanged = DateTime.Now;
         }
 
-        public Winner(int round, int count, string identity, DateTime time)
+        public Winner(int round, int count, DateTime time)
         {
             Round = round;
             Count = count;
-            Identity = identity;
+            Identity = "";
             Time = time;
         }
 

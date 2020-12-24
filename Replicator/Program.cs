@@ -25,11 +25,14 @@ namespace Replicator
 
             X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople,
                 StoreLocation.LocalMachine, srvCertCN);
-            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:9901/Server"),
+            EndpointAddress address1 = new EndpointAddress(new Uri("net.tcp://localhost:9901/Server"),
                                       new X509CertificateEndpointIdentity(srvCert));
 
+            EndpointAddress address2 = new EndpointAddress(new Uri("net.tcp://localhost:9902/Server"),
+                                     new X509CertificateEndpointIdentity(srvCert));
+
             //string address = "net.tcp://localhost:9998/Server";
-            
+
 
             while (true)
             {
@@ -37,8 +40,8 @@ namespace Replicator
                 try
                 {
 
-                    ChannelFactory<IServer> fromWhere = new ChannelFactory<IServer>("fromWhere");
-                    ChannelFactory<IServer> toWhere = new ChannelFactory<IServer>("toWhere");
+                    ChannelFactory<IServer> fromWhere = new ChannelFactory<IServer>(binding,address1);
+                    ChannelFactory<IServer> toWhere = new ChannelFactory<IServer>(binding, address2);
 
                     //ChannelFactory<IServer> factory = new ChannelFactory<IServer>(binding, address);
 

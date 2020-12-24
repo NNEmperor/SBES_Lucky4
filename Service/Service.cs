@@ -123,7 +123,7 @@ namespace Service
                 //ispise ime klijenta
               //  Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);
  
-                Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount,ServiceSecurityContext.Current.PrimaryIdentity.Name, DateTime.Now);
+                Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, DateTime.Now);
                 string encyptedWinner = string.Empty;
                 //serverski sertifikat,vadimo iz trusted people
                 string srvcertCN = "adminPera";
