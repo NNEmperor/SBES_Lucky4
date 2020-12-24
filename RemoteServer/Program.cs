@@ -30,7 +30,7 @@ namespace RemoteServer
                 hostServis.AddServiceEndpoint(typeof(IServer), binding, address);
 
                 NetTcpBinding binding2 = new NetTcpBinding();
-                string address2 = "net.tcp://localhost:9911/Process";
+                string address2 = "net.tcp://localhost:9911/IServerState";
                 hostProcess = new ServiceHost(typeof(ProcessState));
                 hostProcess.AddServiceEndpoint(typeof(IServerState), binding2, address2);
 
@@ -38,7 +38,8 @@ namespace RemoteServer
                 hostServis.Credentials.ClientCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
                 hostServis.Credentials.ServiceCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
 
-
+                hostProcess.Open();
+                hostServis.Open();
                 Console.WriteLine("Lucky6 Remote servers are Running...");
             }
             catch (Exception e)
@@ -51,7 +52,7 @@ namespace RemoteServer
                 hostServis.AddServiceEndpoint(typeof(IServer), binding, address);
 
                 NetTcpBinding binding2 = new NetTcpBinding();
-                string address2 = "net.tcp://localhost:9912/Process";
+                string address2 = "net.tcp://localhost:9912/IServerState";
                 hostProcess = new ServiceHost(typeof(ProcessState));
                 hostProcess.AddServiceEndpoint(typeof(IServerState), binding2, address2);
 
@@ -59,20 +60,21 @@ namespace RemoteServer
                 hostServis.Credentials.ClientCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
                 hostServis.Credentials.ServiceCertificate.Certificate = CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, srvCertCN);
 
-
+                hostProcess.Open();
+                hostServis.Open();
                 Console.WriteLine("Lucky6 Remote servers are Running...");
             }
 
 
 
-            hostProcess.Open();
-            hostServis.Open();
+            //hostProcess.Open();
+            //hostServis.Open();
 
             Console.Read();
 
             hostServis.Close();
             hostProcess.Close();
-            }
+            //}
         }
     }
 }

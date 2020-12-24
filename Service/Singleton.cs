@@ -46,7 +46,7 @@ namespace Service
 
             X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople,
                 StoreLocation.LocalMachine, srvCertCN);
-            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:9998/Server"),
+            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:9901/Server"),
                                       new X509CertificateEndpointIdentity(srvCert));
 
             //string address = "net.tcp://localhost:9998/Server";

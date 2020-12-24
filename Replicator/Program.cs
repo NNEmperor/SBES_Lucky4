@@ -1,7 +1,10 @@
 ﻿using Common;
+using Manager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceModel;
 using System.Text;
 using System.Threading;
@@ -15,6 +18,18 @@ namespace Replicator
         {
             bool isFirstTime = true;
             DateTime time = DateTime.Now;
+            string srvCertCN = "adminPera";
+
+            NetTcpBinding binding = new NetTcpBinding();
+            binding.Security.Transport.ClientCredentialType = TcpClientCredentialType.Certificate;
+
+            X509Certificate2 srvCert = CertManager.GetCertificateFromStorage(StoreName.TrustedPeople,
+                StoreLocation.LocalMachine, srvCertCN);
+            EndpointAddress address = new EndpointAddress(new Uri("net.tcp://localhost:9901/Server"),
+                                      new X509CertificateEndpointIdentity(srvCert));
+
+            //string address = "net.tcp://localhost:9998/Server";
+            
 
             while (true)
             {
@@ -24,6 +39,19 @@ namespace Replicator
 
                     ChannelFactory<IServer> fromWhere = new ChannelFactory<IServer>("fromWhere");
                     ChannelFactory<IServer> toWhere = new ChannelFactory<IServer>("toWhere");
+
+                    //ChannelFactory<IServer> factory = new ChannelFactory<IServer>(binding, address);
+
+                    string cltCertCN = Formatter.ParseName(WindowsIdentity.GetCurrent().Name);
+                    fromWhere.Credentials.ClientCertificate.Certificate =
+                        CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
+                    fromWhere.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.ChainTrust;
+                    fromWhere.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
+
+                    toWhere.Credentials.ClientCertificate.Certificate =
+                       CertManager.GetCertificateFromStorage(StoreName.My, StoreLocation.LocalMachine, cltCertCN);
+                    toWhere.Credentials.ServiceCertificate.Authentication.CertificateValidationMode = System.ServiceModel.Security.X509CertificateValidationMode.ChainTrust;
+                    toWhere.Credentials.ServiceCertificate.Authentication.RevocationMode = X509RevocationMode.NoCheck;
 
                     IServer proxyFrom = fromWhere.CreateChannel();
                     IServer proxyTo = toWhere.CreateChannel();
