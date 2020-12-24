@@ -26,10 +26,12 @@ namespace Common
             Numbers = numbers;
             Bet = bet;
             Username = "client";
-            LastChanged = DateTime.Now;
         }
 
-        public Ticket() { }
+        public Ticket()
+        {
+            LastChanged = DateTime.Now;
+        }
 
         public override string ToString()
         {
