@@ -12,10 +12,11 @@ namespace Common
         public int Count { get; set; }
         public string Identity { get; set; }
         public DateTime Time { get; set; }
+        public DateTime LastChanged { get; set; }
 
         public Winner()
         {
-
+            LastChanged = DateTime.Now;
         }
 
         public Winner(int round, int count, string identity, DateTime time)

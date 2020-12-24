@@ -134,5 +134,18 @@ namespace Manager
             return retVal;
         }
 
+        public static Winner GetWinner(string winner)
+        {
+            Winner w = new Winner();
+            string[] parts = winner.Split(';');
+            w.Round = int.Parse(parts[0]);
+            w.Count = int.Parse(parts[1]);
+            w.Identity = parts[2];
+            w.Time = DateTime.Parse(parts[3]);
+
+            return w;
+
+        }
+
     }
 }

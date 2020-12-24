@@ -14,6 +14,35 @@ namespace RemoteServer
 {
     class Server : IServer
     {
+        public List<Ticket> CheckNewTickets(DateTime time)
+        {
+            List<Ticket> tickets = new List<Ticket>();
+
+            foreach (Ticket t in DataBase.tickets)
+            {
+                if (t.LastChanged >= time)
+                {
+                    tickets.Add(t);
+                }
+            }
+
+            return tickets;
+        }
+
+        public List<Winner> CheckNewWinners(DateTime time)
+        {
+            List<Winner> winners = new List<Winner>();
+
+            foreach (Winner w in DataBase.winners)
+            {
+                if (w.LastChanged >= time)
+                {
+                    winners.Add(w);
+                }
+            }
+
+            return winners;
+        }
 
         public void ForwardBet(string encryptedBet)
         {
@@ -29,8 +58,19 @@ namespace RemoteServer
             StreamWriter sw = new StreamWriter(stream);
             sw.Write(decryptedBet);
             sw.Write(Environment.NewLine);
+            DataBase.tickets.Add(Formatter.GetTicket(decryptedBet));
             sw.Close();
             stream.Close();
+        }
+
+        public List<Ticket> GetTickets()
+        {
+            return DataBase.tickets;
+        }
+
+        public List<Winner> GetWinners()
+        {
+            return DataBase.winners;
         }
 
         public void MultipleWinners(string encryptedWinner)//(int round, int count, string identity, DateTime time)
@@ -49,8 +89,43 @@ namespace RemoteServer
            
             sw.Write(text);
             sw.Write(Environment.NewLine);
+            DataBase.winners.Add(Formatter.GetWinner(text));
             sw.Close();
             stream.Close();
+        }
+
+        public void ReplicateData(List<Ticket> tickets, List<Winner> winners)
+        {
+            string file = "Bets.txt";
+            FileInfo f = new FileInfo(file);
+            string path = f.FullName;
+            FileStream stream = new FileStream(path, FileMode.Append, FileAccess.Write);
+            StreamWriter sw = new StreamWriter(stream);
+
+            foreach (Ticket t in tickets)
+            {
+
+                sw.Write(t.ToString() + Environment.NewLine);
+                DataBase.tickets.Add(t);
+            }
+
+            sw.Close();
+            stream.Close();
+
+            string file2 = "MultipleWinners.txt";
+            FileInfo f2 = new FileInfo(file2);
+            string path2 = f2.FullName;
+            FileStream stream2 = new FileStream(path2, FileMode.Append, FileAccess.Write);
+            StreamWriter sw2 = new StreamWriter(stream2);
+
+            foreach (Winner w in winners)
+            {
+                sw2.Write(w.ToString() + Environment.NewLine);
+                DataBase.winners.Add(w);
+            }
+
+            sw2.Close();
+            stream2.Close();
         }
 
         public string RequestWinnersForOneRound(string round)

@@ -18,11 +18,15 @@ namespace Common
         [DataMember]
         public string Username { get; set; }
 
+        [DataMember]
+        public DateTime LastChanged { get; set; }
+
         public Ticket(List<int> numbers, int bet)
         {
             Numbers = numbers;
             Bet = bet;
             Username = "client";
+            LastChanged = DateTime.Now;
         }
 
         public Ticket() { }

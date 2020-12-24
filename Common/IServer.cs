@@ -20,5 +20,20 @@ namespace Common
         void MultipleWinners(string winner);
         //void MultipleWinners(int round, int count, string identitet, DateTime time);
 
+        [OperationContract]
+        void ReplicateData(List<Ticket> tickets, List<Winner> winners);
+
+        [OperationContract]
+        List<Ticket> GetTickets();
+
+        [OperationContract]
+        List<Winner> GetWinners();
+
+        [OperationContract]
+        List<Winner> CheckNewWinners(DateTime time);
+
+        [OperationContract]
+        List<Ticket> CheckNewTickets(DateTime time);
+
     }
 }
