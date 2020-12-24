@@ -118,7 +118,7 @@ namespace Service
         }
         private void RoundCleanUp()
         {
-            if (Singleton.Instance.WinnerCount >= 1)
+            if (Singleton.Instance.WinnerCount >= 3)
             {
                 //ispise ime klijenta
               //  Winner winner = new Winner(Singleton.Instance.RoundNumber - 1, Singleton.Instance.WinnerCount, Thread.CurrentPrincipal.Identity.Name, DateTime.Now);
